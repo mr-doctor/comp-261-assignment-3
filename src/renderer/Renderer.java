@@ -51,7 +51,6 @@ public class Renderer extends GUI {
 			
 			polygons.add(new Scene.Polygon(a, b, c, reflectance));
 		}
-		
 		currentScene = new Scene(polygons, lightSource);
 	}
 
@@ -66,8 +65,11 @@ public class Renderer extends GUI {
 
 	@Override
 	protected BufferedImage render() {
-		
-
+		if (currentScene != null) {
+			for (Scene.Polygon p : currentScene.getPolygons()) {
+				Pipeline.getShading(p, currentScene.getLight(), new Color(255, 0, 0), new Color(0, 0, 255));
+			}
+		}
 		/*
 		 * This method should put together the pieces of your renderer, as
 		 * described in the lecture. This will involve calling each of the

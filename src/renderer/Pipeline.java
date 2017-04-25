@@ -20,8 +20,7 @@ public class Pipeline {
 	 * should be hidden), and false otherwise.
 	 */
 	public static boolean isHidden(Polygon poly) {
-		// TODO fill this in.
-		return false;
+		return (getUnitNormal(poly.vertices[0], poly.vertices[1], poly.vertices[2]).z > 0);
 	}
 
 	/**
@@ -47,20 +46,24 @@ public class Pipeline {
 		Color l = lightColor;
 		Color R = poly.getReflectance();
 		
-		double theta = Math.acos(unitNormal.dotProduct(d));
+		float theta = (float) (unitNormal.dotProduct(d));
+		System.out.println(theta);
 		
 		int[] rgbO = new int[3];
-		float[] rgbA = new float[3];
-		rgbA = a.getColorComponents(rgbA);
-		float[] rgbL = new float[3];
-		rgbL = l.getColorComponents(rgbL);
-		float[] rgbR = new float[3];
-		rgbR = R.getColorComponents(rgbR);
+		
+		float[] rgbA = findLightIntensity(colourAsArray(a));
+		float[] rgbL = findLightIntensity(colourAsArray(l));
+		int[] rgbR = colourAsArray(R);
+		
+		System.out.println(rgbA[0] + ", " + rgbA[1] + ", " + rgbA[2]);
+		System.out.println(rgbL[0] + ", " + rgbL[1] + ", " + rgbL[2]);
+		System.out.println(rgbR[0] + ", " + rgbR[1] + ", " + rgbR[2]);
 		
 		for (int i=0; i<3; i++) {
-			rgbO[i] = (int) (((int) (rgbA[i]) + (int) (rgbL[i]) * Math.cos(theta)) * (int) (rgbR[i]));
+			rgbO[i] = (int) ((rgbA[i] + rgbL[i] * Math.cos(theta)) * rgbR[i]);
 		}
-		
+		System.out.println(rgbO[0] + ", " + rgbO[1] + ", " + rgbO[2]);
+		System.out.println();
 		return new Color(rgbO[0], rgbO[1], rgbO[2]);
 	}
 	
@@ -83,6 +86,25 @@ public class Pipeline {
 				nX / normal,
 				nY / normal,
 				nZ / normal);
+	}
+	
+	public static int[] colourAsArray(Color c) {
+		int[] rgbArray = new int[3];
+		rgbArray[0] = c.getRed();
+		rgbArray[1] = c.getGreen();
+		rgbArray[2] = c.getBlue();
+		
+		return rgbArray;
+	}
+	
+	public static float[] findLightIntensity(int[] c) {
+		float[] rgbIntensity = new float[3];
+		
+		rgbIntensity[0] = (float) (c[0]) / 255;
+		rgbIntensity[1] = (float) (c[1]) / 255;
+		rgbIntensity[2] = (float) (c[2]) / 255;
+		
+		return rgbIntensity;
 	}
 
 	/**
