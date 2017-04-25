@@ -1,6 +1,7 @@
 package renderer;
 
 import java.awt.Color;
+import java.util.List;
 
 import renderer.Scene.Polygon;
 
@@ -49,20 +50,58 @@ public class Pipeline {
 	 * 
 	 * @param scene
 	 *            The original Scene.
-	 * @param xRot
+	 * @param xAngle
 	 *            An angle describing the viewer's rotation in the YZ-plane (i.e
 	 *            around the X-axis).
-	 * @param yRot
+	 * @param yAngle
 	 *            An angle describing the viewer's rotation in the XZ-plane (i.e
 	 *            around the Y-axis).
 	 * @return A new Scene where all the polygons and the light source have been
 	 *         rotated accordingly.
 	 */
-	public static Scene rotateScene(Scene scene, float xRot, float yRot) {
-		// TODO fill this in.
-		return null;
+	public static Scene rotateScene(Scene scene, float xAngle, float yAngle) {
+		
+		List<Scene.Polygon> polygons = scene.getPolygons();
+		Vector3D lightSource = scene.getLight();
+		
+		Vector3D newLightSource = transformBy(lightSource, new float[][]{
+			{(float) (Math.cos(xAngle)), (float) (-Math.sin(xAngle)), 0f},
+			{(float) (Math.sin(xAngle)), (float) (Math.cos(yAngle)), 0f},
+			{0f, 0f, 0f}});
+		
+		for (Scene.Polygon p : polygons) {
+			for (int i=0; i<p.vertices.length; i++) {
+				Vector3D newPoint = transformBy(p.vertices[i], new float[][]{
+					{(float) (Math.cos(xAngle)), (float) (-Math.sin(xAngle)), 0f},
+					{(float) (Math.sin(xAngle)), (float) (Math.cos(yAngle)), 0f},
+					{0f, 0f, 0f}});
+				p.vertices[i] = newPoint;
+			}
+		}
+		
+		return new Scene(polygons, newLightSource);
 	}
-
+	
+	/**
+	 * Transforms a given point by a given matrix.
+	 * 
+	 * @param point
+	 * 				The original point
+	 * @param matrix
+	 * 				The matrix to transform by
+	 * @return The transformed point
+	 */
+	public static Vector3D transformBy(Vector3D point, float[][] matrix) {
+		float[] pointAsArray = new float[] {point.x, point.y, point.z};
+		float[] newPointAsArray = new float[] {0, 0, 0};
+		for (int row=0; row<3; row++) {
+			for (int column=0; column<3; column++) {
+				newPointAsArray[row] += matrix[row][column] * pointAsArray[column];
+			}
+		}
+		return new Vector3D(newPointAsArray[0], newPointAsArray[1], newPointAsArray[2]);
+	}
+	
 	/**
 	 * This should translate the scene by the appropriate amount.
 	 * 

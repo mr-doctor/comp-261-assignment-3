@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,8 +39,9 @@ public abstract class GUI {
 	/**
 	 * Is called when the user has successfully selected a model file to load,
 	 * and is passed a File representing that file.
+	 * @throws IOException 
 	 */
-	protected abstract void onLoad(File file);
+	protected abstract void onLoad(File file) throws IOException;
 
 	/**
 	 * Is called every time the user presses a key. This can be used for moving
@@ -138,7 +140,11 @@ public abstract class GUI {
 				// run the file chooser and check the user didn't hit cancel
 				if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
-					onLoad(file);
+					try {
+						onLoad(file);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					redraw();
 				}
 			}
