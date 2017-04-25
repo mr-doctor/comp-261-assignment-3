@@ -39,8 +39,50 @@ public class Pipeline {
 	 *            on the direction.
 	 */
 	public static Color getShading(Polygon poly, Vector3D lightDirection, Color lightColor, Color ambientLight) {
-		// TODO fill this in.
-		return null;
+		
+		Vector3D unitNormal = getUnitNormal(poly.vertices[0], poly.vertices[1], poly.vertices[2]);
+		
+		Vector3D d = lightDirection.unitVector();
+		Color a = ambientLight;
+		Color l = lightColor;
+		Color R = poly.getReflectance();
+		
+		double theta = Math.acos(unitNormal.dotProduct(d));
+		
+		int[] rgbO = new int[3];
+		float[] rgbA = new float[3];
+		rgbA = a.getColorComponents(rgbA);
+		float[] rgbL = new float[3];
+		rgbL = l.getColorComponents(rgbL);
+		float[] rgbR = new float[3];
+		rgbR = R.getColorComponents(rgbR);
+		
+		for (int i=0; i<3; i++) {
+			rgbO[i] = (int) (((int) (rgbA[i]) + (int) (rgbL[i]) * Math.cos(theta)) * (int) (rgbR[i]));
+		}
+		
+		return new Color(rgbO[0], rgbO[1], rgbO[2]);
+	}
+	
+	public static Vector3D getUnitNormal(Vector3D vertexA, Vector3D vertexB, Vector3D vertexC) {
+		float aX = vertexB.x - vertexA.x;
+		float aY = vertexB.y - vertexA.y;
+		float aZ = vertexB.z - vertexA.z;
+		
+		float bX = vertexC.x - vertexB.x;
+		float bY = vertexC.y - vertexB.y;
+		float bZ = vertexC.z - vertexB.z;
+		
+		float nX = aX * bZ - aZ * bY;
+		float nY = aZ * bX - aX * bZ;
+		float nZ = aX * bY - aY * bX;
+
+		float normal = (float) Math.sqrt(Math.pow(nX, 2) + Math.pow(nY, 2) + Math.pow(nZ, 2));
+		
+		return new Vector3D(
+				nX / normal,
+				nY / normal,
+				nZ / normal);
 	}
 
 	/**

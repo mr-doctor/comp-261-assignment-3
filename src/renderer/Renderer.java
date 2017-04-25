@@ -66,7 +66,7 @@ public class Renderer extends GUI {
 
 	@Override
 	protected BufferedImage render() {
-		// TODO fill this in.
+		
 
 		/*
 		 * This method should put together the pieces of your renderer, as
