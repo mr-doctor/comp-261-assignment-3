@@ -46,8 +46,7 @@ public class Pipeline {
 		Color l = lightColor;
 		Color R = poly.getReflectance();
 		
-		float theta = (float) (unitNormal.dotProduct(d));
-		System.out.println(theta);
+		float theta = (float) (Math.acos(unitNormal.dotProduct(d)));
 		
 		int[] rgbO = new int[3];
 		
@@ -55,14 +54,14 @@ public class Pipeline {
 		float[] rgbL = findLightIntensity(colourAsArray(l));
 		int[] rgbR = colourAsArray(R);
 		
-		System.out.println(rgbA[0] + ", " + rgbA[1] + ", " + rgbA[2]);
-		System.out.println(rgbL[0] + ", " + rgbL[1] + ", " + rgbL[2]);
-		System.out.println(rgbR[0] + ", " + rgbR[1] + ", " + rgbR[2]);
+		System.out.println("a = " + rgbA[0] + ", " + rgbA[1] + ", " + rgbA[2]);
+		System.out.println("l = " + rgbL[0] + ", " + rgbL[1] + ", " + rgbL[2]);
+		System.out.println("R = " + rgbR[0] + ", " + rgbR[1] + ", " + rgbR[2]);
 		
 		for (int i=0; i<3; i++) {
-			rgbO[i] = (int) ((rgbA[i] + rgbL[i] * Math.cos(theta)) * rgbR[i]);
+			rgbO[i] = (int) ((rgbA[i] + rgbL[i] * Math.max(0, Math.cos(theta))) * rgbR[i]);
 		}
-		System.out.println(rgbO[0] + ", " + rgbO[1] + ", " + rgbO[2]);
+		System.out.println("O = " + rgbO[0] + ", " + rgbO[1] + ", " + rgbO[2]);
 		System.out.println();
 		return new Color(rgbO[0], rgbO[1], rgbO[2]);
 	}
