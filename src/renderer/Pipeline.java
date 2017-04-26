@@ -1,6 +1,7 @@
 package renderer;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.List;
 
 import renderer.Scene.Polygon;
@@ -187,8 +188,43 @@ public class Pipeline {
 	 * slides.
 	 */
 	public static EdgeList computeEdgeList(Polygon poly) {
-		// TODO fill this in.
-		return null;
+		Vector3D[] vectors = Arrays.copyOf(poly.vertices, 3);
+
+		EdgeList edgeList = new EdgeList(0, 0);
+		
+		Vector3D a;
+		Vector3D b;
+		
+		for (int i=0; i<3; i++) {
+			a = vectors[i];
+			b = vectors[(i+1) % 3];
+			
+			float slopeX = (b.x - a.x) / (b.y - a.y);
+			float slopeZ = (b.z - a.z) / (b.y - a.y);
+			
+			float x = a.x;
+			int y = Math.round(a.y);
+			float z = a.z;
+			
+			if (a.y < b.y) {
+				while (y<= Math.round(b.y)) {
+					edgeList.setLeftX(y, x);
+					edgeList.setLeftZ(y, z);
+					x += slopeX;
+					z += slopeZ;
+					y++;
+				}
+			} else {
+				while (y >= Math.round(b.y)) {
+					edgeList.setRightX(y, x);
+					edgeList.setRightZ(y, z);
+					x -= slopeX;
+					z -= slopeZ;
+					y--;
+				}
+			}
+		}
+		return edgeList;
 	}
 
 	/**
@@ -210,7 +246,21 @@ public class Pipeline {
 	 *            The colour of the polygon to add into the zbuffer.
 	 */
 	public static void computeZBuffer(Color[][] zbuffer, float[][] zdepth, EdgeList polyEdgeList, Color polyColor) {
-		// TODO fill this in.
+		for (int y = 0; y < polyEdgeList.getData().length; y++) {
+			float slope = (polyEdgeList.getRightZ(y) - polyEdgeList.getLeftZ(y)) / 
+					(polyEdgeList.getRightX(y) - polyEdgeList.getLeftZ(y));
+			
+			float z = polyEdgeList.getLeftZ(y);
+			int x = Math.round(polyEdgeList.getLeftX(y));
+			while (x <= Math.round(polyEdgeList.getRightX(y))) {
+				if (z < zdepth[x][y]) {
+					zbuffer[x][y] = polyColor;
+					zdepth[x][y] = z;
+				}
+				z += slope;
+				x++;
+			}
+		}
 	}
 }
 

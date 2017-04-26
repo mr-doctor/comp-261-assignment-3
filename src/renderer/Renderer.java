@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Renderer extends GUI {
 	
-	private Scene currentScene;
+	private Scene scene;
 	
 	@Override
 	protected void onLoad(File file) throws IOException {
@@ -51,7 +51,7 @@ public class Renderer extends GUI {
 			
 			polygons.add(new Scene.Polygon(a, b, c, reflectance));
 		}
-		currentScene = new Scene(polygons, lightSource);
+		scene = new Scene(polygons, lightSource);
 	}
 
 	@Override
@@ -65,9 +65,15 @@ public class Renderer extends GUI {
 
 	@Override
 	protected BufferedImage render() {
-		if (currentScene != null) {
-			for (Scene.Polygon p : currentScene.getPolygons()) {
-				Pipeline.getShading(p, currentScene.getLight(), new Color(255, 0, 0), new Color(0, 0, 255));
+		Color[][] zBuffer = new Color[CANVAS_HEIGHT][CANVAS_WIDTH];
+		float[][] zDepth = new float[CANVAS_HEIGHT][CANVAS_WIDTH];
+		
+		EdgeList edges;
+		
+		for (Scene.Polygon p : scene.getPolygons()) {
+			if (!Pipeline.isHidden(p)) {
+				edges = Pipeline.computeEdgeList(p);
+				Pipeline.computeZBuffer(zBuffer, zDepth, edges, p.getReflectance());
 			}
 		}
 		/*
@@ -76,7 +82,7 @@ public class Renderer extends GUI {
 		 * static method stubs in the Pipeline class, which you also need to
 		 * fill in.
 		 */
-		return null;
+		return convertBitmapToImage(zBuffer);
 	}
 
 	/**

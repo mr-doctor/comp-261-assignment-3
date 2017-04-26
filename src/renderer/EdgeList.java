@@ -9,38 +9,66 @@ package renderer;
  * an addRow(y, xLeft, xRight, zLeft, zRight) method.
  */
 public class EdgeList {
-	public EdgeList(int startY, int endY) {
-		// TODO fill this in.
-	}
+	private int startY;
+	private int endY;
+	private float[][] data;
 
+	public EdgeList(int startY, int endY) {
+		this.startY = startY;
+		this.endY = endY;
+		int size = endY - startY;
+		this.data = new float[4][size];
+	}
+	
+	public void addRow(int y, float xLeft, float xRight, float zLeft, float zRight) {
+		data[0][y] = xLeft;
+		data[1][y] = xRight;
+		data[2][y] = zLeft;
+		data[3][y] = zRight;
+	}
+	
 	public int getStartY() {
-		// TODO fill this in.
-		return 0;
+		return this.endY;
 	}
 
 	public int getEndY() {
-		// TODO fill this in.
-		return 0;
+		return this.startY;
 	}
 
 	public float getLeftX(int y) {
-		// TODO fill this in.
-		return 0;
+		return data[0][y];
 	}
 
 	public float getRightX(int y) {
-		// TODO fill this in.
-		return 0;
+		return data[2][y];
 	}
 
 	public float getLeftZ(int y) {
-		// TODO fill this in.
-		return 0;
+		return data[1][y];
 	}
 
 	public float getRightZ(int y) {
-		// TODO fill this in.
-		return 0;
+		return data[3][y];
+	}
+	
+	public void setLeftX(int y, float x) {
+		this.data[0][y] = x;
+	}
+
+	public void setRightX(int y, float x) {
+		this.data[2][y] = x;
+	}
+
+	public void setLeftZ(int y, float z) {
+		this.data[1][y] = z;
+	}
+
+	public void setRightZ(int y, float z) {
+		this.data[3][y] = z;
+	}
+	
+	public float[][] getData() {
+		return this.data;
 	}
 }
 
