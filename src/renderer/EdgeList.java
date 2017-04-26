@@ -12,60 +12,54 @@ public class EdgeList {
 	private int startY;
 	private int endY;
 	private float[][] data;
+	private int size;
 
 	public EdgeList(int startY, int endY) {
 		this.startY = startY;
 		this.endY = endY;
-		int size = endY - startY;
+		size = endY - startY + 1;
 		this.data = new float[4][size];
 	}
 	
-	public void addRow(int y, float xLeft, float xRight, float zLeft, float zRight) {
-		data[0][y] = xLeft;
-		data[1][y] = xRight;
-		data[2][y] = zLeft;
-		data[3][y] = zRight;
-	}
-	
 	public int getStartY() {
-		return this.endY;
-	}
-
-	public int getEndY() {
 		return this.startY;
 	}
 
-	public float getLeftX(int y) {
-		return data[0][y];
+	public int getEndY() {
+		return this.endY;
 	}
 
-	public float getRightX(int y) {
-		return data[2][y];
-	}
+    public float getLeftX(int y) {
+        return data[0][y];
+    }
 
-	public float getLeftZ(int y) {
-		return data[1][y];
-	}
+    public void setLeftX(int y, float value){
+        data[0][y] = value;
+    }
 
-	public float getRightZ(int y) {
-		return data[3][y];
-	}
-	
-	public void setLeftX(int y, float x) {
-		this.data[0][y] = x;
-	}
+    public float getRightX(int y) {
+        return data[2][y];
+    }
 
-	public void setRightX(int y, float x) {
-		this.data[2][y] = x;
-	}
+    public void setRightX(int y, float val){
+        data[2][y] = val;
+    }
 
-	public void setLeftZ(int y, float z) {
-		this.data[1][y] = z;
-	}
+    public float getLeftZ(int y) {
+        return data[1][y];
+    }
 
-	public void setRightZ(int y, float z) {
-		this.data[3][y] = z;
-	}
+    public void setLeftZ(int y, float val){
+        data[1][y] = val;
+    }
+
+    public float getRightZ(int y) {
+        return data[3][y];
+    }
+
+    public void setRightZ(int y, float val){
+        data[3][y] = val;
+    }
 	
 	public float[][] getData() {
 		return this.data;

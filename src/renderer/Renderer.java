@@ -65,6 +65,10 @@ public class Renderer extends GUI {
 
 	@Override
 	protected BufferedImage render() {
+		if (scene == null) {
+			return null;
+		}
+		scene = Pipeline.translateScene(scene);
 		Color[][] zBuffer = new Color[CANVAS_HEIGHT][CANVAS_WIDTH];
 		float[][] zDepth = new float[CANVAS_HEIGHT][CANVAS_WIDTH];
 		
