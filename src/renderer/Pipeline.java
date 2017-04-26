@@ -54,15 +54,10 @@ public class Pipeline {
 		float[] rgbL = findLightIntensity(colourAsArray(l));
 		int[] rgbR = colourAsArray(R);
 		
-		System.out.println("a = " + rgbA[0] + ", " + rgbA[1] + ", " + rgbA[2]);
-		System.out.println("l = " + rgbL[0] + ", " + rgbL[1] + ", " + rgbL[2]);
-		System.out.println("R = " + rgbR[0] + ", " + rgbR[1] + ", " + rgbR[2]);
-		
 		for (int i=0; i<3; i++) {
 			rgbO[i] = (int) ((rgbA[i] + rgbL[i] * Math.max(0, Math.cos(theta))) * rgbR[i]);
 		}
-		System.out.println("O = " + rgbO[0] + ", " + rgbO[1] + ", " + rgbO[2]);
-		System.out.println();
+		
 		return new Color(rgbO[0], rgbO[1], rgbO[2]);
 	}
 	
@@ -115,10 +110,10 @@ public class Pipeline {
 	 *            The original Scene.
 	 * @param xAngle
 	 *            An angle describing the viewer's rotation in the YZ-plane (i.e
-	 *            around the X-axis).
+	 *            around the X-axis). Will be 0 if rotating around the Y-axis.
 	 * @param yAngle
 	 *            An angle describing the viewer's rotation in the XZ-plane (i.e
-	 *            around the Y-axis).
+	 *            around the Y-axis). Will be 0 if rotating around the X-axis.
 	 * @return A new Scene where all the polygons and the light source have been
 	 *         rotated accordingly.
 	 */
@@ -127,42 +122,42 @@ public class Pipeline {
 		List<Scene.Polygon> polygons = scene.getPolygons();
 		Vector3D lightSource = scene.getLight();
 		
-		Vector3D newLightSource = transformBy(lightSource, new float[][]{
-			{(float) (Math.cos(xAngle)), (float) (-Math.sin(xAngle)), 0f},
-			{(float) (Math.sin(xAngle)), (float) (Math.cos(yAngle)), 0f},
-			{0f, 0f, 0f}});
+		Vector3D newLightSource = null;
+		if (xAngle > 0.0f) {
+			newLightSource = new Vector3D (
+				lightSource.x,
+				(float) (Math.cos(xAngle) * lightSource.y - (Math.sin(xAngle) * lightSource.z)),
+				(float) (Math.sin(xAngle) * lightSource.y + (Math.cos(xAngle) * lightSource.z)));
+		} else if (yAngle > 0.0f) {
+			newLightSource = new Vector3D (
+					(float) (Math.cos(yAngle) * lightSource.x - (Math.sin(yAngle) * lightSource.z)),
+					lightSource.y,
+					(float) (-Math.cos(yAngle) * lightSource.x + Math.sin(yAngle) * lightSource.z));
+		} else {
+			newLightSource = lightSource;
+		}
 		
 		for (Scene.Polygon p : polygons) {
 			for (int i=0; i<p.vertices.length; i++) {
-				Vector3D newPoint = transformBy(p.vertices[i], new float[][]{
-					{(float) (Math.cos(xAngle)), (float) (-Math.sin(xAngle)), 0f},
-					{(float) (Math.sin(xAngle)), (float) (Math.cos(yAngle)), 0f},
-					{0f, 0f, 0f}});
+				Vector3D newPoint = null;
+				if (xAngle > 0.0f) {
+					newPoint = new Vector3D (
+							p.vertices[i].x,
+							(float) (Math.cos(xAngle) * p.vertices[i].y - (Math.sin(xAngle) * p.vertices[i].z)),
+							(float) (Math.sin(xAngle) * p.vertices[i].y + (Math.cos(xAngle) * p.vertices[i].z)));
+				} else if (yAngle > 0.0f) {
+					newPoint = new Vector3D (
+							(float) (Math.cos(yAngle) * p.vertices[i].x - (Math.sin(yAngle) * p.vertices[i].z)),
+							p.vertices[i].y,
+							(float) (-Math.cos(yAngle) * p.vertices[i].x + Math.sin(yAngle) * p.vertices[i].z));
+				} else {
+					newPoint = p.vertices[i];
+				}
 				p.vertices[i] = newPoint;
 			}
 		}
 		
 		return new Scene(polygons, newLightSource);
-	}
-	
-	/**
-	 * Transforms a given point by a given matrix.
-	 * 
-	 * @param point
-	 * 				The original point
-	 * @param matrix
-	 * 				The matrix to transform by
-	 * @return The transformed point
-	 */
-	public static Vector3D transformBy(Vector3D point, float[][] matrix) {
-		float[] pointAsArray = new float[] {point.x, point.y, point.z};
-		float[] newPointAsArray = new float[] {0, 0, 0};
-		for (int row=0; row<3; row++) {
-			for (int column=0; column<3; column++) {
-				newPointAsArray[row] += matrix[row][column] * pointAsArray[column];
-			}
-		}
-		return new Vector3D(newPointAsArray[0], newPointAsArray[1], newPointAsArray[2]);
 	}
 	
 	/**
