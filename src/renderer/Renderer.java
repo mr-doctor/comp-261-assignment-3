@@ -66,13 +66,13 @@ public class Renderer extends GUI {
 				zDepth[i][j] = Float.POSITIVE_INFINITY;
 			}
 		}
-
+		
 		for (Scene.Polygon p : scene.getPolygons()) {
 			if (!Pipeline.isHidden(p)) {
 				Color c = Pipeline.getShading(
 						p, 
 						scene.getLight(), 
-						new Color(255, 255, 255), 
+						p.getReflectance(), 
 						new Color(
 								getAmbientLight()[0], 
 								getAmbientLight()[1], 

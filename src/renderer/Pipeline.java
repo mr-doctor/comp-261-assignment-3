@@ -23,7 +23,7 @@ public class Pipeline {
 	 * should be hidden), and false otherwise.
 	 */
 	public static boolean isHidden(Polygon poly) {
-		return (getUnitNormal(poly.vertices[0], poly.vertices[1], poly.vertices[2]).z > 0);
+		return (getUnitNormal(poly).z > 0);
 	}
 
 	/**
@@ -41,57 +41,33 @@ public class Pipeline {
 	 *            on the direction.
 	 */
 	public static Color getShading(Polygon poly, Vector3D lightDirection, Color lightColor, Color ambientLight) {
-
-		Vector3D unitNormal = getUnitNormal(poly.vertices[0], poly.vertices[1], poly.vertices[2]);
-
+		Vector3D unitNormal = getUnitNormal(poly);
+		
 		Vector3D d = lightDirection.unitVector();
-		Color a = ambientLight;
-		Color l = lightColor;
 		Color R = poly.getReflectance();
-
+		
 		float theta = (float) (Math.acos(unitNormal.dotProduct(d)));
-
+		
 		int[] rgbO = new int[3];
-
-		float[] rgbA = findLightIntensity(colourAsArray(a));
-		float[] rgbL = findLightIntensity(colourAsArray(l));
+		float[] rgbA = findLightIntensity(colourAsArray(ambientLight));
+		float[] rgbL = findLightIntensity(colourAsArray(lightColor));
 		int[] rgbR = colourAsArray(R);
-
+		
 		for (int i = 0; i < 3; i++) {
 			rgbO[i] = (int) ((rgbA[i] + rgbL[i] * Math.max(0, Math.cos(theta))) * rgbR[i]);
 		}
 		
-		for (int i=0; i < 3; i++) {
-			rgbO[i] = clamp(0, rgbO[i], 255);
-		}
-		return new Color(rgbO[0], rgbO[1], rgbO[2]);
+		return new Color(clamp(rgbO[0], 0, 255), clamp(rgbO[1], 0, 255), clamp(rgbO[2], 0, 255));
 	}
+
 	
-	public static int clamp(int lower, int num, int upper) {
-		if (num > upper) {
-			num = upper;
-		} else if (num < lower) {
-			num = lower;
-		}
-		return num;
+	private static int clamp(int in, int min, int max) {
+		return Math.min(Math.max(in, min), max);
 	}
 
-	public static Vector3D getUnitNormal(Vector3D vertexA, Vector3D vertexB, Vector3D vertexC) {
-		float aX = vertexB.x - vertexA.x;
-		float aY = vertexB.y - vertexA.y;
-		float aZ = vertexB.z - vertexA.z;
-
-		float bX = vertexC.x - vertexB.x;
-		float bY = vertexC.y - vertexB.y;
-		float bZ = vertexC.z - vertexB.z;
-
-		float nX = aX * bZ - aZ * bY;
-		float nY = aZ * bX - aX * bZ;
-		float nZ = aX * bY - aY * bX;
-
-		float normal = (float) Math.sqrt(Math.pow(nX, 2) + Math.pow(nY, 2) + Math.pow(nZ, 2));
-
-		return new Vector3D(nX / normal, nY / normal, nZ / normal);
+	private static Vector3D getUnitNormal(Polygon poly) {
+		Vector3D a = poly.getVertices()[0], b = poly.getVertices()[1], c = poly.getVertices()[2];
+		return b.minus(a).crossProduct(c.minus(b)).unitVector();
 	}
 
 	public static int[] colourAsArray(Color c) {
