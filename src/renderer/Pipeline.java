@@ -166,15 +166,15 @@ public class Pipeline {
 	public static Scene translateScene(Scene scene) {
 		Rectangle bBox = boundingBox(scene.getPolygons());
 		
-		float xDiff = bBox.x;
-		float yDiff = bBox.y;
+		float xDiff = -bBox.x;
+		float yDiff = -bBox.y;
 		System.out.println(xDiff);
 		System.out.println(yDiff);
 		
 		Transform t = Transform.newTranslation(new Vector3D(xDiff, yDiff, 0));
 		for (Scene.Polygon p : scene.getPolygons()) {
-			for (Vector3D vertex : p.vertices) {
-				vertex = t.multiply(vertex);
+			for (int i=0; i<p.vertices.length; i++) {
+				p.vertices[i] = t.multiply(p.vertices[i]);
 			}
 		}
 		Vector3D newLight = t.multiply(scene.getLight());

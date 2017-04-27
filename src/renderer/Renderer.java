@@ -13,45 +13,30 @@ public class Renderer extends GUI {
 	
 	private Scene scene;
 	
-	@Override
 	protected void onLoad(File file) throws IOException {
-		/*
-		 * This method should parse the given file into a Scene object, which
-		 * you store and use to render an image.
-		 */
-		List<Scene.Polygon> polygons = new ArrayList<>();
-		
-		List<String> sceneData = Files.readAllLines(file.toPath());
-		
-		String[] splitFirstLine = sceneData.get(0).split(" ");
-		Vector3D lightSource = new Vector3D(
-				Float.parseFloat(splitFirstLine[0]), 
-				Float.parseFloat(splitFirstLine[1]), 
-				Float.parseFloat(splitFirstLine[2]));
-		
-		for (int i=1; i<sceneData.size(); i++) {
-			String[] splitData = sceneData.get(i).split(" ");
-			Vector3D a = new Vector3D(
-					Float.parseFloat(splitData[0]), 
-					Float.parseFloat(splitData[1]), 
-					Float.parseFloat(splitData[2]));
-			Vector3D b = new Vector3D(
-					Float.parseFloat(splitData[3]),
-					Float.parseFloat(splitData[4]), 
-					Float.parseFloat(splitData[5]));
-			Vector3D c = new Vector3D(
-					Float.parseFloat(splitData[6]), 
-					Float.parseFloat(splitData[7]), 
-					Float.parseFloat(splitData[8]));
-			
-			Color reflectance = new Color(
-					Integer.parseInt(splitData[9]), 
-					Integer.parseInt(splitData[10]), 
-					Integer.parseInt(splitData[11]));
-			
-			polygons.add(new Scene.Polygon(a, b, c, reflectance));
+		List<String> allLines = Files.readAllLines(file.toPath());
+		List<Scene.Polygon> polys = new ArrayList<>();
+		String splitData[] = allLines.get(0).split(" ");
+		float[] lightVector = new float[3];
+		for (int i = 0; i < lightVector.length; i++) {
+			lightVector[i] = Float.parseFloat(splitData[i]);
 		}
-		scene = new Scene(polygons, lightSource);
+		Vector3D lightSource = new Vector3D(lightVector[0], lightVector[1], lightVector[2]);
+		for (int i = 1; i < allLines.size(); i++) {
+			splitData = allLines.get(i).split(" ");
+			if (splitData.length != 12)
+				throw new IllegalArgumentException();
+			float[] polyVertices = new float[9];
+			int[] reflectance = new int[3];
+			for (int j = 0; j < 9; j++) {
+				polyVertices[j] = Float.parseFloat(splitData[j]);
+			}
+			for (int j = 9; i < splitData.length; i++) {
+				reflectance[j - 9] = Integer.parseInt(splitData[j]);
+			}
+			polys.add(new Scene.Polygon(polyVertices, reflectance));
+		}
+		scene = new Scene(polys, lightSource);
 	}
 
 	@Override
@@ -69,11 +54,18 @@ public class Renderer extends GUI {
 			return null;
 		}
 		scene = Pipeline.translateScene(scene);
-		Color[][] zBuffer = new Color[CANVAS_HEIGHT][CANVAS_WIDTH];
-		float[][] zDepth = new float[CANVAS_HEIGHT][CANVAS_WIDTH];
+		Color[][] zBuffer = new Color[CANVAS_WIDTH][CANVAS_HEIGHT];
+		float[][] zDepth = new float[CANVAS_WIDTH][CANVAS_HEIGHT];
 		
 		EdgeList edges;
-		
+
+		for (int i = 0; i < CANVAS_WIDTH; i++) {
+			for (int j = 0; j < CANVAS_HEIGHT; j++) {
+				zBuffer[i][j] = Color.white;
+				zDepth[i][j] = Float.POSITIVE_INFINITY;
+			}
+		}
+
 		for (Scene.Polygon p : scene.getPolygons()) {
 			if (!Pipeline.isHidden(p)) {
 				edges = Pipeline.computeEdgeList(p);
