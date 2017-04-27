@@ -30,35 +30,35 @@ public class EdgeList {
 	}
 
     public float getLeftX(int y) {
-        return data[0][y];
+        return data[0][y-startY];
     }
 
     public void setLeftX(int y, float value){
-        data[0][y] = value;
+        data[0][y-startY] = value;
     }
 
     public float getRightX(int y) {
-        return data[2][y];
+        return data[2][y-startY];
     }
 
     public void setRightX(int y, float val){
-        data[2][y] = val;
+        data[2][y-startY] = val;
     }
 
     public float getLeftZ(int y) {
-        return data[1][y];
+        return data[1][y-startY];
     }
 
     public void setLeftZ(int y, float val){
-        data[1][y] = val;
+        data[1][y-startY] = val;
     }
 
     public float getRightZ(int y) {
-        return data[3][y];
+        return data[3][y-startY];
     }
 
     public void setRightZ(int y, float val){
-        data[3][y] = val;
+        data[3][y-startY] = val;
     }
 	
 	public float[][] getData() {

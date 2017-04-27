@@ -168,8 +168,9 @@ public class Pipeline {
 		
 		float xDiff = -bBox.x;
 		float yDiff = -bBox.y;
-		System.out.println(xDiff);
-		System.out.println(yDiff);
+		
+		System.out.println(bBox.x + ", " + bBox.y);
+		System.out.println((bBox.x + bBox.getWidth()) + ", " + (bBox.y + bBox.getHeight()));
 		
 		Transform t = Transform.newTranslation(new Vector3D(xDiff, yDiff, 0));
 		for (Scene.Polygon p : scene.getPolygons()) {
@@ -178,6 +179,11 @@ public class Pipeline {
 			}
 		}
 		Vector3D newLight = t.multiply(scene.getLight());
+		
+		Rectangle bBoxTranslated = boundingBox(scene.getPolygons());
+		
+		System.out.println(bBoxTranslated.x + ", " + bBoxTranslated.y);
+		System.out.println((bBoxTranslated.x + bBoxTranslated.getWidth()) + ", " + (bBoxTranslated.y + bBoxTranslated.getHeight()));
 		
 		return new Scene(scene.getPolygons(), newLight);
 	}
@@ -189,8 +195,33 @@ public class Pipeline {
 	 * @return
 	 */
 	public static Scene scaleScene(Scene scene) {
-
-		return null;
+		Rectangle bBox = boundingBox(scene.getPolygons());
+		
+		float xMax = (float) (bBox.x + bBox.getWidth());
+		float yMax = (float) (bBox.y + bBox.getHeight());
+		
+		float scaleFactor = 1;
+		
+		if (xMax > GUI.CANVAS_WIDTH) {
+			scaleFactor = GUI.CANVAS_WIDTH / xMax;
+		} else if (yMax > GUI.CANVAS_HEIGHT) {
+			scaleFactor = GUI.CANVAS_HEIGHT / yMax;
+		}
+		
+		if (scaleFactor == 1.0f) {
+			return scene;
+		}
+		
+		Transform t = Transform.newScale(scaleFactor, scaleFactor, scaleFactor);
+		
+		for (Scene.Polygon p : scene.getPolygons()) {
+			for (int i=0; i<p.vertices.length; i++) {
+				p.vertices[i] = t.multiply(p.vertices[i]);
+			}
+		}
+		Vector3D newLight = t.multiply(scene.getLight());
+		
+		return new Scene(scene.getPolygons(), newLight);
 	}
 	
 	public static Rectangle boundingBox(List<Scene.Polygon> polygons) {
@@ -236,7 +267,6 @@ public class Pipeline {
 				minY = Math.round(v.y);
 			}
 		}
-
 		EdgeList edgeList = new EdgeList(minY, maxY);
 
 		Vector3D a;

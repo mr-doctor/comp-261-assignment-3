@@ -54,6 +54,7 @@ public class Renderer extends GUI {
 			return null;
 		}
 		scene = Pipeline.translateScene(scene);
+		scene = Pipeline.scaleScene(scene);
 		Color[][] zBuffer = new Color[CANVAS_WIDTH][CANVAS_HEIGHT];
 		float[][] zDepth = new float[CANVAS_WIDTH][CANVAS_HEIGHT];
 		
