@@ -31,7 +31,7 @@ public class Renderer extends GUI {
 			for (int j = 0; j < 9; j++) {
 				polyVertices[j] = Float.parseFloat(splitData[j]);
 			}
-			for (int j = 9; i < splitData.length; i++) {
+			for (int j = 9; j < splitData.length; j++) {
 				reflectance[j - 9] = Integer.parseInt(splitData[j]);
 			}
 			polys.add(new Scene.Polygon(polyVertices, reflectance));
@@ -69,8 +69,16 @@ public class Renderer extends GUI {
 
 		for (Scene.Polygon p : scene.getPolygons()) {
 			if (!Pipeline.isHidden(p)) {
+				Color c = Pipeline.getShading(
+						p, 
+						scene.getLight(), 
+						new Color(255, 255, 255), 
+						new Color(
+								getAmbientLight()[0], 
+								getAmbientLight()[1], 
+								getAmbientLight()[2]));
 				edges = Pipeline.computeEdgeList(p);
-				Pipeline.computeZBuffer(zBuffer, zDepth, edges, p.getReflectance());
+				Pipeline.computeZBuffer(zBuffer, zDepth, edges, c);
 			}
 		}
 		/*

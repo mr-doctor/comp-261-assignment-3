@@ -60,8 +60,20 @@ public class Pipeline {
 		for (int i = 0; i < 3; i++) {
 			rgbO[i] = (int) ((rgbA[i] + rgbL[i] * Math.max(0, Math.cos(theta))) * rgbR[i]);
 		}
-
+		
+		for (int i=0; i < 3; i++) {
+			rgbO[i] = clamp(0, rgbO[i], 255);
+		}
 		return new Color(rgbO[0], rgbO[1], rgbO[2]);
+	}
+	
+	public static int clamp(int lower, int num, int upper) {
+		if (num > upper) {
+			num = upper;
+		} else if (num < lower) {
+			num = lower;
+		}
+		return num;
 	}
 
 	public static Vector3D getUnitNormal(Vector3D vertexA, Vector3D vertexB, Vector3D vertexC) {
@@ -169,9 +181,6 @@ public class Pipeline {
 		float xDiff = -bBox.x;
 		float yDiff = -bBox.y;
 		
-		System.out.println(bBox.x + ", " + bBox.y);
-		System.out.println((bBox.x + bBox.getWidth()) + ", " + (bBox.y + bBox.getHeight()));
-		
 		Transform t = Transform.newTranslation(new Vector3D(xDiff, yDiff, 0));
 		for (Scene.Polygon p : scene.getPolygons()) {
 			for (int i=0; i<p.vertices.length; i++) {
@@ -181,9 +190,6 @@ public class Pipeline {
 		Vector3D newLight = t.multiply(scene.getLight());
 		
 		Rectangle bBoxTranslated = boundingBox(scene.getPolygons());
-		
-		System.out.println(bBoxTranslated.x + ", " + bBoxTranslated.y);
-		System.out.println((bBoxTranslated.x + bBoxTranslated.getWidth()) + ", " + (bBoxTranslated.y + bBoxTranslated.getHeight()));
 		
 		return new Scene(scene.getPolygons(), newLight);
 	}
