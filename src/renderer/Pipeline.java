@@ -106,43 +106,34 @@ public class Pipeline {
 	 *         rotated accordingly.
 	 */
 	public static Scene rotateScene(Scene scene, float xAngle, float yAngle) {
-
-		List<Scene.Polygon> polygons = scene.getPolygons();
-		Vector3D lightSource = scene.getLight();
-
-		Vector3D newLightSource = null;
-		if (xAngle > 0.0f) {
-			newLightSource = new Vector3D(lightSource.x,
-					(float) (Math.cos(xAngle) * lightSource.y - (Math.sin(xAngle) * lightSource.z)),
-					(float) (Math.sin(xAngle) * lightSource.y + (Math.cos(xAngle) * lightSource.z)));
-		} else if (yAngle > 0.0f) {
-			newLightSource = new Vector3D(
-					(float) (Math.cos(yAngle) * lightSource.x - (Math.sin(yAngle) * lightSource.z)), lightSource.y,
-					(float) (-Math.cos(yAngle) * lightSource.x + Math.sin(yAngle) * lightSource.z));
-		} else {
-			newLightSource = lightSource;
+		if (scene == null) {
+			return null;
 		}
+		Transform tX = Transform.newXRotation(xAngle);
+		Transform tY = Transform.newYRotation(yAngle);
 
-		for (Scene.Polygon p : polygons) {
-			for (int i = 0; i < p.vertices.length; i++) {
-				Vector3D newPoint = null;
-				if (xAngle > 0.0f) {
-					newPoint = new Vector3D(p.vertices[i].x,
-							(float) (Math.cos(xAngle) * p.vertices[i].y - (Math.sin(xAngle) * p.vertices[i].z)),
-							(float) (Math.sin(xAngle) * p.vertices[i].y + (Math.cos(xAngle) * p.vertices[i].z)));
-				} else if (yAngle > 0.0f) {
-					newPoint = new Vector3D(
-							(float) (Math.cos(yAngle) * p.vertices[i].x - (Math.sin(yAngle) * p.vertices[i].z)),
-							p.vertices[i].y,
-							(float) (-Math.cos(yAngle) * p.vertices[i].x + Math.sin(yAngle) * p.vertices[i].z));
-				} else {
-					newPoint = p.vertices[i];
+		List<Polygon> newPolygons = new ArrayList<>(scene.getPolygons());
+
+		for (Scene.Polygon p : newPolygons) {
+			for (int i = 0; i < p.getVertices().length; i++) {
+				if (xAngle != 0.0f) {
+					p.getVertices()[i] = tX.multiply(p.getVertices()[i]);
 				}
-				p.vertices[i] = newPoint;
+				if (yAngle != 0.0f) {
+					p.getVertices()[i] = tY.multiply(p.getVertices()[i]);
+				}
 			}
 		}
+		/*Vector3D newLightSource = scene.getLight();
 
-		return new Scene(polygons, newLightSource);
+		if (xAngle != 0.0f) {
+			newLightSource = tX.multiply(scene.getLight());
+		}
+		if (yAngle != 0.0f) {
+			newLightSource = tY.multiply(newLightSource);
+		}*/
+
+		return new Scene(newPolygons, scene.getLight());
 	}
 
 	/**
@@ -154,8 +145,8 @@ public class Pipeline {
 	public static Scene translateScene(Scene scene) {
 		Rectangle bBox = boundingBox(scene.getPolygons());
 		
-		float xDiff = -bBox.x;
-		float yDiff = -bBox.y;
+		float xDiff = 0-bBox.x;
+		float yDiff = 0-bBox.y;
 		
 		Transform t = Transform.newTranslation(new Vector3D(xDiff, yDiff, 0));
 		for (Scene.Polygon p : scene.getPolygons()) {
@@ -163,9 +154,7 @@ public class Pipeline {
 				p.vertices[i] = t.multiply(p.vertices[i]);
 			}
 		}
-		Vector3D newLight = t.multiply(scene.getLight());
-		
-		Rectangle bBoxTranslated = boundingBox(scene.getPolygons());
+		Vector3D newLight = scene.getLight();//t.multiply(scene.getLight());
 		
 		return new Scene(scene.getPolygons(), newLight);
 	}
@@ -201,7 +190,7 @@ public class Pipeline {
 				p.vertices[i] = t.multiply(p.vertices[i]);
 			}
 		}
-		Vector3D newLight = t.multiply(scene.getLight());
+		Vector3D newLight = scene.getLight();//t.multiply(scene.getLight());
 		
 		return new Scene(scene.getPolygons(), newLight);
 	}
@@ -312,7 +301,7 @@ public class Pipeline {
 			float z = polyEdgeList.getLeftZ(y);
 			int x = Math.round(polyEdgeList.getLeftX(y));
 			while (x <= Math.round(polyEdgeList.getRightX(y)) - 1) {
-				if (z < zdepth[x][y]) {
+				if (y >= 0 && x >= 0 && z < zdepth[x][y]) {
 					zbuffer[x][y] = polyColor;
 					zdepth[x][y] = z;
 				}

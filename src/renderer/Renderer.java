@@ -1,6 +1,7 @@
 package renderer;
 
 import java.awt.Color;
+import java.awt.RenderingHints.Key;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -39,15 +40,27 @@ public class Renderer extends GUI {
 		scene = new Scene(polys, lightSource);
 	}
 
-	@Override
-	protected void onKeyPress(KeyEvent ev) {
-		// TODO fill this in.
+    protected void onKeyPress(KeyEvent ev) {
+        // TODO fill this in.
 
-		/*
-		 * This method should be used to rotate the user's viewpoint.
-		 */
-	}
+        /*
+         * This method should be used to rotate the user's viewpoint.
+         */
 
+        if(ev.getKeyCode() == KeyEvent.VK_LEFT){
+            scene = Pipeline.rotateScene(scene, 0,(float) (-0.1*Math.PI));
+            
+        }else if(ev.getKeyCode() == KeyEvent.VK_RIGHT){
+            scene = Pipeline.rotateScene(scene, 0,(float) (0.1*Math.PI));
+        
+        }else if(ev.getKeyCode() == KeyEvent.VK_UP){
+            scene = Pipeline.rotateScene(scene, (float) (0.1*Math.PI),0);
+        
+        }else if(ev.getKeyCode() == KeyEvent.VK_DOWN){
+            scene = Pipeline.rotateScene(scene, (float) (-0.1*Math.PI),0);
+        }
+    }
+	
 	@Override
 	protected BufferedImage render() {
 		if (scene == null) {

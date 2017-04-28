@@ -79,6 +79,9 @@ public class RotationTests {
 				3.0f, 1.3196325f, 9.780109f, 5.0f, 1.161664f };
 		Polygon expected = new Polygon(vertsExpected, col);
 
+		System.out.println(p2);
+		System.out.println(expected);
+		System.out.println();
 		assertTrue(eq(expected, p2));
 	}
 	
