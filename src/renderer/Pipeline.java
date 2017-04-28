@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import renderer.Scene.Polygon;
 
@@ -59,6 +61,43 @@ public class Pipeline {
 		
 		return new Color(clamp(rgbO[0], 0, 255), clamp(rgbO[1], 0, 255), clamp(rgbO[2], 0, 255));
 	}
+	
+	
+	public static Color getShading(Polygon poly, Vector3D[] lightSources, Color[] lightColours, Color ambientLight) {
+		Vector3D unitNormal = getUnitNormal(poly);
+		
+		Vector3D[] lightDirections = new Vector3D[lightSources.length];
+
+		float[] allTheta = new float[lightSources.length];
+
+		for (int i = 0; i < lightSources.length; i++) {
+			Vector3D d = lightSources[i].unitVector();
+			lightDirections[i] = d;
+			allTheta[i] = (float) (float) (Math.acos(unitNormal.dotProduct(d)));
+		}
+
+		float[][] lightSourceIntensities = new float[lightColours.length][3];
+
+		Color R = poly.getReflectance();
+
+		int[] rgbO = new int[3];
+		float[] rgbA = findLightIntensity(colourAsArray(ambientLight));
+		for (int i = 0; i < lightColours.length; i++) {
+			lightSourceIntensities[i] = findLightIntensity(colourAsArray(lightColours[i]));
+		}
+		int[] rgbR = colourAsArray(R);
+		
+		for (int i = 0; i < 3; i++) {
+			float totalSourceValue = 0;
+			for (int j = 0; j<allTheta.length; j++) {
+				totalSourceValue += lightSourceIntensities[i][j] * Math.max(0, Math.cos(allTheta[j]));
+			}
+			rgbO[i] = (int) (((rgbA[i] + totalSourceValue)) * rgbR[i]);
+		}
+		
+		return new Color(clamp(rgbO[0], 0, 255), clamp(rgbO[1], 0, 255), clamp(rgbO[2], 0, 255));
+	}
+	
 
 	
 	private static int clamp(int in, int min, int max) {
@@ -124,16 +163,16 @@ public class Pipeline {
 				}
 			}
 		}
-		/*Vector3D newLightSource = scene.getLight();
+		Vector3D newLightSource = scene.getLight();
 
 		if (xAngle != 0.0f) {
 			newLightSource = tX.multiply(scene.getLight());
 		}
 		if (yAngle != 0.0f) {
 			newLightSource = tY.multiply(newLightSource);
-		}*/
+		}
 
-		return new Scene(newPolygons, scene.getLight());
+		return new Scene(newPolygons, newLightSource);
 	}
 
 	/**
@@ -154,9 +193,8 @@ public class Pipeline {
 				p.vertices[i] = t.multiply(p.vertices[i]);
 			}
 		}
-		Vector3D newLight = scene.getLight();//t.multiply(scene.getLight());
 		
-		return new Scene(scene.getPolygons(), newLight);
+		return new Scene(scene.getPolygons(), scene.getLight());
 	}
 
 	/**
@@ -190,7 +228,7 @@ public class Pipeline {
 				p.vertices[i] = t.multiply(p.vertices[i]);
 			}
 		}
-		Vector3D newLight = scene.getLight();//t.multiply(scene.getLight());
+		Vector3D newLight = t.multiply(scene.getLight());
 		
 		return new Scene(scene.getPolygons(), newLight);
 	}

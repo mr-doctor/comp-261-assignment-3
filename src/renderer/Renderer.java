@@ -85,11 +85,23 @@ public class Renderer extends GUI {
 				Color c = Pipeline.getShading(
 						p, 
 						scene.getLight(), 
-						p.getReflectance(), 
+						new Color(255, 255, 255), 
 						new Color(
 								getAmbientLight()[0], 
 								getAmbientLight()[1], 
 								getAmbientLight()[2]));
+				/*c = Pipeline.getShading(
+						p, 
+						scene.getLights(), 
+						new Color[] {
+								new Color(100, 100, 100),
+								new Color(100, 100, 100),
+								new Color(100, 100, 100),
+						}, 
+						new Color(
+								getAmbientLight()[0], 
+								getAmbientLight()[1], 
+								getAmbientLight()[2]));*/
 				edges = Pipeline.computeEdgeList(p);
 				Pipeline.computeZBuffer(zBuffer, zDepth, edges, c);
 			}

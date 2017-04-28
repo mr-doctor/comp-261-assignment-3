@@ -17,16 +17,26 @@ public class Scene {
 	
 	private Vector3D lightSource;
 	private List<Polygon> polygons;
+	//private Vector3D[] lightSources;
 
 	public Scene(List<Polygon> polygons, Vector3D lightPos) {
           this.lightSource = lightPos;
           this.polygons = polygons;
 	}
+	
+	/*public Scene(List<Polygon> polygons, Vector3D[] lightPositions) {
+        this.lightSources = lightPositions;
+        this.polygons = polygons;
+	}*/
 
 	public Vector3D getLight() {
           return lightSource;
 	}
-
+	
+	/*public Vector3D[] getLights() {
+        return lightSources;
+	}
+*/
 	public List<Polygon> getPolygons() {
           // TODO fill this in.
           return this.polygons;

@@ -149,6 +149,13 @@ public abstract class GUI {
 				}
 			}
 		});
+		
+		JButton applySliders = new JButton("Apply Colour");
+		applySliders.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				redraw();
+			}
+		});
 		// we have to put the button in its own panel to ensure it fills the
 		// full width of the control bar.
 		JPanel loadpanel = new JPanel(new BorderLayout());
@@ -170,6 +177,8 @@ public abstract class GUI {
 		sliderparty.add(red);
 		sliderparty.add(green);
 		sliderparty.add(blue);
+		
+		sliderparty.add(applySliders);
 
 		// this is not a best-practices way of doing key listening; instead you
 		// should use either a KeyListener or an InputMap/ActionMap combo. but
