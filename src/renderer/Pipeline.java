@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import renderer.Scene.Polygon;
 
@@ -184,10 +182,11 @@ public class Pipeline {
 	public static Scene translateScene(Scene scene) {
 		Rectangle bBox = boundingBox(scene.getPolygons());
 		
-		float xDiff = 0-bBox.x;
-		float yDiff = 0-bBox.y;
+		float xDiff = -bBox.x;
+		float yDiff = -bBox.y;
 		
 		Transform t = Transform.newTranslation(new Vector3D(xDiff, yDiff, 0));
+		
 		for (Scene.Polygon p : scene.getPolygons()) {
 			for (int i=0; i<p.vertices.length; i++) {
 				p.vertices[i] = t.multiply(p.vertices[i]);
@@ -206,17 +205,19 @@ public class Pipeline {
 	public static Scene scaleScene(Scene scene) {
 		Rectangle bBox = boundingBox(scene.getPolygons());
 		
-		float xMax = (float) (bBox.x + bBox.getWidth());
-		float yMax = (float) (bBox.y + bBox.getHeight());
+		float width = (float) (bBox.getWidth());
+		float height = (float) (bBox.getHeight());
 		
 		float scaleFactor = 1;
 		
-		if (xMax > GUI.CANVAS_WIDTH) {
-			scaleFactor = GUI.CANVAS_WIDTH / xMax;
-		} else if (yMax > GUI.CANVAS_HEIGHT) {
-			scaleFactor = GUI.CANVAS_HEIGHT / yMax;
+		boolean useWidth = (width - GUI.CANVAS_WIDTH > height - GUI.CANVAS_HEIGHT);
+		if (width > GUI.CANVAS_WIDTH && useWidth) {
+			scaleFactor = GUI.CANVAS_WIDTH / width;
 		}
-		
+		if (height > GUI.CANVAS_HEIGHT && !useWidth) {
+			scaleFactor = GUI.CANVAS_HEIGHT / height;
+		}
+
 		if (scaleFactor == 1.0f) {
 			return scene;
 		}
@@ -264,10 +265,10 @@ public class Pipeline {
 	 */
 	public static EdgeList computeEdgeList(Polygon poly) {
 		Vector3D[] vectors = Arrays.copyOf(poly.vertices, 3);
-
+		
 		int minY = Integer.MAX_VALUE;
 		int maxY = -Integer.MAX_VALUE;
-
+		
 		for (Vector3D v : vectors) {
 			if (v.y > maxY) {
 				maxY = Math.round(v.y);
@@ -320,10 +321,10 @@ public class Pipeline {
 	 * The idea here is to make zbuffer and zdepth arrays in your main loop, and
 	 * pass them into the method to be modified.
 	 * 
-	 * @param zbuffer
+	 * @param zBuffer
 	 *            A double array of colours representing the Color at each pixel
 	 *            so far.
-	 * @param zdepth
+	 * @param zDepth
 	 *            A double array of floats storing the z-value of each pixel
 	 *            that has been coloured in so far.
 	 * @param polyEdgeList
@@ -331,7 +332,7 @@ public class Pipeline {
 	 * @param polyColor
 	 *            The colour of the polygon to add into the zbuffer.
 	 */
-	public static void computeZBuffer(Color[][] zbuffer, float[][] zdepth, EdgeList polyEdgeList, Color polyColor) {
+	public static void computeZBuffer(Color[][] zBuffer, float[][] zDepth, EdgeList polyEdgeList, Color polyColor) {
 		for (int y = polyEdgeList.getStartY(); y < polyEdgeList.getEndY(); y++) {
 			float slope = (polyEdgeList.getRightZ(y) - polyEdgeList.getLeftZ(y))
 					/ (polyEdgeList.getRightX(y) - polyEdgeList.getLeftZ(y));
@@ -339,14 +340,18 @@ public class Pipeline {
 			float z = polyEdgeList.getLeftZ(y);
 			int x = Math.round(polyEdgeList.getLeftX(y));
 			while (x <= Math.round(polyEdgeList.getRightX(y)) - 1) {
-				if (y >= 0 && x >= 0 && z < zdepth[x][y]) {
-					zbuffer[x][y] = polyColor;
-					zdepth[x][y] = z;
+				if (withinBounds(x, y) && z < zDepth[x][y]) {
+					zBuffer[x][y] = polyColor;
+					zDepth[x][y] = z;
 				}
 				z += slope;
 				x++;
 			}
 		}
+	}
+	
+	public static boolean withinBounds(int x, int y) {
+		return y >= 0 && x >= 0 && y < GUI.CANVAS_HEIGHT && x < GUI.CANVAS_WIDTH;
 	}
 }
 

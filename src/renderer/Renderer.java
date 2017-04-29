@@ -1,7 +1,6 @@
 package renderer;
 
 import java.awt.Color;
-import java.awt.RenderingHints.Key;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,12 +40,6 @@ public class Renderer extends GUI {
 	}
 
     protected void onKeyPress(KeyEvent ev) {
-        // TODO fill this in.
-
-        /*
-         * This method should be used to rotate the user's viewpoint.
-         */
-
         if(ev.getKeyCode() == KeyEvent.VK_LEFT){
             scene = Pipeline.rotateScene(scene, 0,(float) (-0.1*Math.PI));
             
@@ -73,10 +66,10 @@ public class Renderer extends GUI {
 		
 		EdgeList edges;
 
-		for (int i = 0; i < CANVAS_WIDTH; i++) {
-			for (int j = 0; j < CANVAS_HEIGHT; j++) {
-				zBuffer[i][j] = Color.white;
-				zDepth[i][j] = Float.POSITIVE_INFINITY;
+		for (int x = 0; x < CANVAS_WIDTH; x++) {
+			for (int y = 0; y < CANVAS_HEIGHT; y++) {
+				zBuffer[x][y] = Color.white;
+				zDepth[x][y] = Float.POSITIVE_INFINITY;
 			}
 		}
 		
@@ -90,30 +83,26 @@ public class Renderer extends GUI {
 								getAmbientLight()[0], 
 								getAmbientLight()[1], 
 								getAmbientLight()[2]));
-				/*c = Pipeline.getShading(
-						p, 
-						scene.getLights(), 
-						new Color[] {
-								new Color(100, 100, 100),
-								new Color(100, 100, 100),
-								new Color(100, 100, 100),
-						}, 
-						new Color(
-								getAmbientLight()[0], 
-								getAmbientLight()[1], 
-								getAmbientLight()[2]));*/
 				edges = Pipeline.computeEdgeList(p);
 				Pipeline.computeZBuffer(zBuffer, zDepth, edges, c);
 			}
 		}
-		/*
-		 * This method should put together the pieces of your renderer, as
-		 * described in the lecture. This will involve calling each of the
-		 * static method stubs in the Pipeline class, which you also need to
-		 * fill in.
-		 */
+		
 		return convertBitmapToImage(zBuffer);
 	}
+	
+	/*c = Pipeline.getShading(
+	p, 
+	scene.getLights(), 
+	new Color[] {
+			new Color(100, 100, 100),
+			new Color(100, 100, 100),
+			new Color(100, 100, 100),
+	}, 
+	new Color(
+			getAmbientLight()[0], 
+			getAmbientLight()[1], 
+			getAmbientLight()[2]));*/
 
 	/**
 	 * Converts a 2D array of Colors to a BufferedImage. Assumes that bitmap is
