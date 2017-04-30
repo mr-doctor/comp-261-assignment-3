@@ -66,6 +66,18 @@ public class ImageExample extends GUI {
 		new ImageExample();
 	}
 
+	@Override
+	protected void addNewLightSource() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void removeLightSource() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
 // code for comp261 assignments

@@ -65,12 +65,22 @@ public abstract class GUI {
 	}
 
 	/**
+	 * Adds a random light source to the scene.
+	 */
+	protected abstract void addNewLightSource();
+	
+	/**
+	 * Removes the last added light source from the scene.
+	 */
+	protected abstract void removeLightSource();
+
+	/**
 	 * Returns the values of the three sliders used for setting the ambient
 	 * light of the scene. The returned array in the form [R, G, B] where each
 	 * value is between 0 and 255.
 	 */
 	public int[] getAmbientLight() {
-		return new int[] { red.getValue(), green.getValue(), blue.getValue() };
+		return new int[] { redAmbient.getValue(), greenAmbient.getValue(), blueAmbient.getValue() };
 	}
 
 	public static final int CANVAS_WIDTH = 600;
@@ -83,9 +93,9 @@ public abstract class GUI {
 	// --------------------------------------------------------------------
 
 	private JFrame frame;
-	private final JSlider red = new JSlider(JSlider.HORIZONTAL, 0, 255, 128);
-	private final JSlider green = new JSlider(JSlider.HORIZONTAL, 0, 255, 128);
-	private final JSlider blue = new JSlider(JSlider.HORIZONTAL, 0, 255, 128);
+	private final JSlider redAmbient = new JSlider(JSlider.HORIZONTAL, 0, 255, 128);
+	private final JSlider greenAmbient = new JSlider(JSlider.HORIZONTAL, 0, 255, 128);
+	private final JSlider blueAmbient = new JSlider(JSlider.HORIZONTAL, 0, 255, 128);
 
 	private static final Dimension DRAWING_SIZE = new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT);
 	private static final Dimension CONTROLS_SIZE = new Dimension(150, 600);
@@ -156,6 +166,22 @@ public abstract class GUI {
 				redraw();
 			}
 		});
+		
+		JButton newLightSource = new JButton("Add Light");
+		newLightSource.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				addNewLightSource();
+				redraw();
+			}
+		});
+		
+		JButton removeLightSource = new JButton("Remove Light");
+		removeLightSource.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				removeLightSource();
+				redraw();
+			}
+		});
 		// we have to put the button in its own panel to ensure it fills the
 		// full width of the control bar.
 		JPanel loadpanel = new JPanel(new BorderLayout());
@@ -166,19 +192,21 @@ public abstract class GUI {
 		// set up the sliders for ambient light. they were instantiated in
 		// the field definition, as for some reason they need to be final to
 		// pull the set background trick.
-		red.setBackground(new Color(230, 50, 50));
-		green.setBackground(new Color(50, 230, 50));
-		blue.setBackground(new Color(50, 50, 230));
+		redAmbient.setBackground(new Color(230, 50, 50));
+		greenAmbient.setBackground(new Color(50, 230, 50));
+		blueAmbient.setBackground(new Color(50, 50, 230));
 
 		JPanel sliderparty = new JPanel();
 		sliderparty.setLayout(new BoxLayout(sliderparty, BoxLayout.PAGE_AXIS));
 		sliderparty.setBorder(BorderFactory.createTitledBorder("Ambient Light"));
 
-		sliderparty.add(red);
-		sliderparty.add(green);
-		sliderparty.add(blue);
+		sliderparty.add(redAmbient);
+		sliderparty.add(greenAmbient);
+		sliderparty.add(blueAmbient);
 		
 		sliderparty.add(applySliders);
+		sliderparty.add(newLightSource);
+		sliderparty.add(removeLightSource);
 
 		// this is not a best-practices way of doing key listening; instead you
 		// should use either a KeyListener or an InputMap/ActionMap combo. but
@@ -218,6 +246,7 @@ public abstract class GUI {
 		frame.pack();
 		frame.setVisible(true);
 	}
+
 }
 
 // code for comp261 assignments

@@ -13,13 +13,25 @@ public class EdgeList {
 	private int endY;
 	private float[][] data;
 	private int size;
-
+	
+	/**
+	 * Constructor that makes a new edgelist.
+	 * 
+	 * @param startY
+	 * 			The lowest y-value of the edgelist.
+	 * @param endY
+	 * 			The highest y-value of the edgelist.
+	 */
 	public EdgeList(int startY, int endY) {
 		this.startY = startY;
 		this.endY = endY;
 		size = endY - startY + 1;
 		this.data = new float[4][size];
 	}
+	
+	/*
+	 * Getters and setters.
+	 */
 	
 	public int getStartY() {
 		return this.startY;

@@ -1,6 +1,7 @@
 package renderer;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,30 +16,19 @@ import java.util.List;
  */
 public class Scene {
 	
-	private Vector3D lightSource;
+	private ArrayList<Vector3D> lightSources;
 	private List<Polygon> polygons;
-	//private Vector3D[] lightSources;
 
-	public Scene(List<Polygon> polygons, Vector3D lightPos) {
-          this.lightSource = lightPos;
+	public Scene(List<Polygon> polygons, ArrayList<Vector3D> directLightSources) {
+          this.lightSources = directLightSources;
           this.polygons = polygons;
 	}
 	
-	/*public Scene(List<Polygon> polygons, Vector3D[] lightPositions) {
-        this.lightSources = lightPositions;
-        this.polygons = polygons;
-	}*/
-
-	public Vector3D getLight() {
-          return lightSource;
+	public ArrayList<Vector3D> getLights() {
+          return lightSources;
 	}
 	
-	/*public Vector3D[] getLights() {
-        return lightSources;
-	}
-*/
 	public List<Polygon> getPolygons() {
-          // TODO fill this in.
           return this.polygons;
 	}
 
@@ -49,8 +39,8 @@ public class Scene {
          * This class has been done for you.
 	 */
 	public static class Polygon {
-		Vector3D[] vertices;
-		Color reflectance;
+		private Vector3D[] vertices;
+		private Color reflectance;
 
 		/**
 		 * @param points
